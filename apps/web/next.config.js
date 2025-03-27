@@ -20,11 +20,11 @@ module.exports = withImages({
     return [
       {
         source: '/uploads/:path*',
-        destination: `${HOST}/uploads/:path*`, // Proxy to Backend
+        destination: `${process.env.NEXT_PUBLIC_API_URL || ''}/uploads/:path*`, // Proxy to Backend
       },
       {
         source: '/asset/image/:path*/:filename',
-        destination: `${HOST}/asset/image/:path*/:filename`,
+        destination: `${process.env.NEXT_PUBLIC_API_URL || ''}/asset/image/:path*/:filename`,
       },
     ];
   },
