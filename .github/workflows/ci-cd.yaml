@@ -1,34 +1,36 @@
-name: Build and Push to Docker Hub
+name: Docker Build and Push
 
 on:
   push:
-    branches: [ main ]  
+    branches: [ main ]
 
 env:
-  REGISTRY: docker.io
-  IMAGE_NAME: raziriz/frontend  
-  TAG: latest                             
+  REGISTRY: quay.io
+  IMAGE_NAME: frontend
+  TAG: latest
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
     steps:
-      # 1. Checkout code
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Login to Docker Hub
-      - name: Login to Docker Hub
+      - name: Login to Quay.io
         uses: docker/login-action@v3
         with:
-          username: raziriz
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ${{ env.REGISTRY }}
+          username: razirizwan
+          password: ${{ secrets.QUAY_PASSWORD }}
 
-      # 3. Build and push the image
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: docker/Dockerfile  
+          file: docker/Dockerfile
           push: true
-          tags: ${{ env.IMAGE_NAME }}:${{ env.TAG }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
