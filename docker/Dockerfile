@@ -1,4 +1,4 @@
-ARG NODE_VERSION=18.18.0
+ARG NODE_VERSION=20.0.0
 # Alpine image
 FROM node:${NODE_VERSION}-alpine AS alpine
 RUN apk update
