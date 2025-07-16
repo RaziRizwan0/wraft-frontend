@@ -5,7 +5,7 @@ on:
     tags: ['v*.*.*']
 env:
   REGISTRY: quay.io
-  IMAGE_NAME: wraft-frontend
+  IMAGE_NAME: newrepo
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
