@@ -1,4 +1,4 @@
-# Contributing to Wraft - raziriz
+# Contributing to Wraft 
 
 Thank you for your interest in contributing to Wraft! This project uses React for the frontend and follows the Git Flow workflow. Here are our guidelines for contributing.
 
