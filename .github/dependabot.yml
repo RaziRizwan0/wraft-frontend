@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/" # Change if your frontend code is in a subfolder
+    schedule:
+      interval: "daily" # You can change to "weekly" or "monthly"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "fix"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "frontend"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+    rebase-strategy: auto
+    insecure-external-code-execution: deny
+    security-updates: true
