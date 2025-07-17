@@ -1,7 +1,6 @@
 name: Build and Push Docker Image
 on:
   push:
-    branches: [git-action]
     tags: ['v*.*.*']
 env:
   REGISTRY: quay.io
@@ -22,7 +21,6 @@ jobs:
           echo "ORG_NAME=${ORG_NAME}" >> $GITHUB_ENV
       - name: Extract version from tag
         id: version
-        if: startsWith(github.ref, 'refs/tags/v')
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -43,4 +41,6 @@ jobs:
           file: docker/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ${{ env.REGISTRY }}/${{ env.ORG_NAME }}/${{ env.IMAGE_NAME }}:latest${{ startsWith(github.ref, 'refs/tags/v') && format(',{0}/{1}/{2}:{3}', env.REGISTRY, env.ORG_NAME, env.IMAGE_NAME, env.VERSION) || '' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.ORG_NAME }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.ORG_NAME }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
