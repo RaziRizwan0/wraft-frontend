@@ -16,7 +16,8 @@ jobs:
         id: release
         with:
           # Choose your release type based on your project
-          release-type: simple  # Options: node, python, docker, simple, etc.
+          release-type: simple 
+          default-branch: git-action # Options: node, python, docker, simple, etc.
           
   # This job runs ONLY when a release is actually created (PR merged)
   build-and-push:
