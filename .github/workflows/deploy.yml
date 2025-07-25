@@ -1,34 +1,21 @@
-name: Release Please
+name: Build and Push Docker Image
 
 on:
   push:
-    branches: [git-action]  # Set this to your main development branch
+    branches: [git-action]
+    tags: ['v*.*.*']
+
+env:
+  REGISTRY: quay.io
+  IMAGE_NAME: newrepo
 
 jobs:
-  release-please:
-    runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-      version: ${{ steps.release.outputs.version }}
-    steps:
-      - uses: googleapis/release-please-action@v4
-        id: release
-        with:
-          release-type: simple
-          target-branch: git-action  # Correct input key
-          token: ${{ secrets.GITHUB_TOKEN }}
-
   build-and-push:
     runs-on: ubuntu-latest
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}  # Ensures it only runs on real release
-    env:
-      REGISTRY: quay.io
-      IMAGE_NAME: newrepo
     permissions:
       contents: read
       packages: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -38,6 +25,11 @@ jobs:
         run: |
           ORG_NAME=$(echo "${{ secrets.QUAY_USERNAME }}" | cut -d'+' -f1)
           echo "ORG_NAME=${ORG_NAME}" >> $GITHUB_ENV
+
+      - name: Extract version from tag
+        id: version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -63,11 +55,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.REGISTRY }}/${{ env.ORG_NAME }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.ORG_NAME }}/${{ env.IMAGE_NAME }}:${{ needs.release-please.outputs.version }}
-
-      - name: Release Summary
-        run: |
-          echo "## 🚀 Release Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- **Version:** ${{ needs.release-please.outputs.tag_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Docker Tags:** latest, ${{ needs.release-please.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Registry:** ${{ env.REGISTRY }}/${{ env.ORG_NAME }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+            ${{ startsWith(github.ref, 'refs/tags/v') && format('{0}/{1}/{2}:{3}', env.REGISTRY, env.ORG_NAME, env.IMAGE_NAME, env.VERSION) || '' }}
