@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     branches: [git-action]
-    tags: ['v*.*.*']
+    tags: ['v*.*.*']  # Only triggers for tags with 'v' prefix (e.g., v1.2.3)
 
 env:
   REGISTRY: quay.io
@@ -26,10 +26,13 @@ jobs:
           ORG_NAME=$(echo "${{ secrets.QUAY_USERNAME }}" | cut -d'+' -f1)
           echo "ORG_NAME=${ORG_NAME}" >> $GITHUB_ENV
 
-      - name: Extract version from tag
+      - name: Extract version from tag (keeping 'v' prefix)
         id: version
         if: startsWith(github.ref, 'refs/tags/v')
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        run: |
+          # Only removes 'refs/tags/', keeps 'v1.2.3' intact
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
